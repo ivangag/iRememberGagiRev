@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.app.gagi.iremember.Common.StoryListOverviewItem;
+import com.app.gagi.iremember.Common.StoryCreateItem;
 import com.app.gagi.iremember.Common.Utils;
 import com.app.gagi.iremember.R;
 
@@ -20,16 +20,16 @@ import java.util.List;
  * Created by igaglioti on 10/03/14.
  */
 public class StoryListOverviewAdapter  extends BaseAdapter{
-    List<StoryListOverviewItem> mStoryLisOverviewItems;
-    List<StoryListOverviewItem> mOriginalStoryLisOverviewItems;
+    List<StoryCreateItem> mStoryLisOverviewItems;
+    List<StoryCreateItem> mOriginalStoryLisOverviewItems;
 
     public StoryListOverviewAdapter()
     {
-        mStoryLisOverviewItems = new ArrayList<StoryListOverviewItem>();
-        mOriginalStoryLisOverviewItems = new ArrayList<StoryListOverviewItem>();
+        mStoryLisOverviewItems = new ArrayList<StoryCreateItem>();
+        mOriginalStoryLisOverviewItems = new ArrayList<StoryCreateItem>();
     }
 
-    public void addElement(StoryListOverviewItem item)
+    public void addElement(StoryCreateItem item)
     {
         this.mOriginalStoryLisOverviewItems.add(item);
         notifyDataSetChanged();
@@ -53,12 +53,13 @@ public class StoryListOverviewAdapter  extends BaseAdapter{
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        StoryListOverviewItem item = (StoryListOverviewItem)this.getItem(position);
+        StoryCreateItem item = (StoryCreateItem)this.getItem(position);
         LayoutInflater inflater = (LayoutInflater)parent.getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         RelativeLayout itemLayout = (RelativeLayout)inflater.inflate(R.layout.story_list_fragment_item,null);
 
         ((TextView)itemLayout.findViewById(R.id.textView)).setText(item.getItemName());
+        ((TextView)itemLayout.findViewById(R.id.txtStoryViewTime)).setText(item.getStoryDate());
         ((ImageView)itemLayout.findViewById(R.id.imageViewThumbail)).setImageBitmap(Utils.getInstance().
                 getScaledImageBitmap(parent.getContext(),item.getPhotoPath(), Double.valueOf(parent.getResources().getString(R.string.scaleSizeThumbail))));
         ((ImageView)itemLayout.findViewById(R.id.imageViewThumbail)).setRotation(270);

@@ -21,8 +21,8 @@ public class StoryGPSInfo {
         this.mLongitude = mLongitude;
     }
 
-    double mLatitude;
-    double mLongitude;
+    private double mLatitude;
+    private double mLongitude;
     public StoryGPSInfo(double latitude, double longitude )
     {
         mLatitude = latitude;

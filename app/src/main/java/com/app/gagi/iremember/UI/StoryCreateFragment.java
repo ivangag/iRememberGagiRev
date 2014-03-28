@@ -24,7 +24,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
-import com.app.gagi.iremember.Common.StoryListOverviewItem;
+import com.app.gagi.iremember.Common.StoryCreateItem;
+import com.app.gagi.iremember.Common.StoryGPSInfo;
 import com.app.gagi.iremember.R;
 
 import java.io.File;
@@ -73,6 +74,7 @@ public class StoryCreateFragment extends Fragment {
     private String mPhotoPath;
     private String mStoryTitle;
     private String mStoryBody;
+    private Uri mVideoFileUri;
 
     /**
      * Use this factory method to create a new instance of
@@ -109,10 +111,15 @@ public class StoryCreateFragment extends Fragment {
                 Intent data = new Intent();
                 Bundle bundle = new Bundle();
                 mStoryTitle = txtStoryTitle.getText().toString();
-                bundle.putString(StoryListOverviewItem.TITLE_TAG,mStoryTitle);
-                bundle.putString(StoryListOverviewItem.AUDIO_TAG,mAudioPath);
-                bundle.putString(StoryListOverviewItem.PHOTO_TAG,imagePathFinal);
-                data.putExtra("EXTRA_TEST",bundle);
+                bundle.putString(StoryCreateItem.TITLE_TAG,mStoryTitle);
+                bundle.putString(StoryCreateItem.AUDIO_TAG,mAudioPath);
+                bundle.putString(StoryCreateItem.PHOTO_TAG,imagePathFinal);
+                bundle.putString(StoryCreateItem.VIDEO_TAG,mVideoFileUri.toString());
+                bundle.putString(StoryCreateItem.STORYTIME_TAG,txtStoryTime.getText().toString());
+                data.putExtra("EXTRA_TEST", bundle);
+                data.putExtra("EXTRA_OBJ",new StoryCreateItem(mStoryTitle,
+                        mAudioPath, imagePathFinal,
+                        mVideoFileUri.toString(),txtStoryTime.getText().toString(), new StoryGPSInfo(45.0,4.5)));
                 this.getActivity().setResult(getActivity().RESULT_OK,data);
                 this.getActivity().finish();
                 break;
@@ -212,6 +219,18 @@ public class StoryCreateFragment extends Fragment {
                         && (null != data.getData()))
                     imagePathFinal = data.getData().toString();
                 txtPhotoPath.setText(imagePathFinal);
+            } else if (resultCode == StoryCreateActivity.RESULT_CANCELED) {
+                // User cancelled the image capture
+            } else {
+                // Image capture failed, advise user
+            }
+        }
+        else if (requestCode == StoryCreateActivity.CAMERA_VIDEO_REQUEST) {
+            if (resultCode == StoryCreateActivity.RESULT_OK) {
+                // Image captured and saved to fileUri specified in the Intent
+                // fileUriFinal = fileUri;
+                mVideoFileUri = data.getData();
+                txtVideoPath.setText(mVideoFileUri.toString());
             } else if (resultCode == StoryCreateActivity.RESULT_CANCELED) {
                 // User cancelled the image capture
             } else {

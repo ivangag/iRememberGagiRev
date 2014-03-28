@@ -14,8 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.app.gagi.iremember.Common.StoryGPSInfo;
-import com.app.gagi.iremember.Common.StoryListOverviewItem;
+import com.app.gagi.iremember.Common.StoryCreateItem;
 import com.app.gagi.iremember.R;
 
 /**
@@ -66,7 +65,6 @@ public class StoryListFragment extends ListFragment{
         }
 
         mAdapter = new StoryListOverviewAdapter();
-        //mAdapter.addElement(new StoryListOverviewItem("Story #" + mFakeStoryCount++));
 
         setListAdapter(mAdapter);
         setRetainInstance(true);
@@ -141,14 +139,15 @@ public class StoryListFragment extends ListFragment{
                 )
         {
             Bundle bundle = data.getBundleExtra("EXTRA_TEST");
+            StoryCreateItem item =  data.getExtras().getParcelable("EXTRA_OBJ");
             //Toast.makeText(getActivity().getApplicationContext(),"New Story Created: " + data.getStringExtra("EXTRA_TEST"),Toast.LENGTH_SHORT).show();
-            Toast.makeText(getActivity().getApplicationContext(),"New Story Created: " + bundle.getString(StoryListOverviewItem.TITLE_TAG),Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity().getApplicationContext(),"New Story Created: " + bundle.getString(StoryCreateItem.TITLE_TAG),Toast.LENGTH_SHORT).show();
 
-            mAdapter.addElement(new StoryListOverviewItem(bundle.getString(StoryListOverviewItem.TITLE_TAG),
-                    bundle.getString(StoryListOverviewItem.AUDIO_TAG),
-                    bundle.getString(StoryListOverviewItem.PHOTO_TAG),
-                    bundle.getString(StoryListOverviewItem.VIDEO_TAG),
-                    bundle.getString(StoryListOverviewItem.STORYTIME_TAG),
+            mAdapter.addElement(new StoryCreateItem(bundle.getString(StoryCreateItem.TITLE_TAG),
+                    bundle.getString(StoryCreateItem.AUDIO_TAG),
+                    bundle.getString(StoryCreateItem.PHOTO_TAG),
+                    bundle.getString(StoryCreateItem.VIDEO_TAG),
+                    bundle.getString(StoryCreateItem.STORYTIME_TAG),
                     null)
             );
         }
