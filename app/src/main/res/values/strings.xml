@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">iRememberGAGI</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_item">Create Story</string>
+    <string name="action_search">Search</string>
+    <string name="title_activity_story_create">StoryCreateActivity</string>
+    <string name="add_audio">add audio</string>
+    <string name="add_photo">add photo</string>
+    <string name="add_video">add video</string>
+    <string name="audio_path_title">Audio Path:</string>
+    <string name="photo_path_title">Photo Path:</string>
+    <string name="video_path_title">Video Path:</string>
+    <string name="scaleSizeThumbail">196.0</string>
+    <string name="audio_player_dialog_title">Audio Player...</string>
+    <string name="start_rec_audio_player">Start Recording</string>
+    <string name="start_audio_player_registration">Start Playing</string>
+    <string name="stop_audio_player_registration">Stop Playing</string>
+    <string name="stop_audio_rec_registration">Stop Recording</string>
+    <string name="exit_audio_player_registration">Close</string>
+    <string name="label_story_title">Story Title</string>
+    <string name="label_story_body">Story Body</string>
+
+</resources>
