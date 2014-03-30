@@ -8,9 +8,9 @@
     <string name="add_item">Create Story</string>
     <string name="action_search">Search</string>
     <string name="title_activity_story_create">StoryCreateActivity</string>
-    <string name="add_audio">add audio</string>
-    <string name="add_photo">add photo</string>
-    <string name="add_video">add video</string>
+    <string name="add_audio">Add Audio</string>
+    <string name="add_photo">Add Photo</string>
+    <string name="add_video">Add Video</string>
     <string name="audio_path_title">Audio Path:</string>
     <string name="photo_path_title">Photo Path:</string>
     <string name="video_path_title">Video Path:</string>
@@ -23,5 +23,11 @@
     <string name="exit_audio_player_registration">Close</string>
     <string name="label_story_title">Story Title</string>
     <string name="label_story_body">Story Body</string>
+    <string name="hint_Audio_path">Audio Path...</string>
+    <string name="hint_image_path">Image Path...</string>
+    <string name="hint_video_path">Video Path...</string>
+    <string name="add_gps">Add Position</string>
+    <string name="hint_story_body">Here your Story...</string>
+    <string name="add_story_date">Story Date</string>
 
 </resources>

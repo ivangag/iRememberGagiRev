@@ -17,7 +17,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.app.gagi.iremember.UI.StoryListActivity"
+            android:name=".UI.StoryListActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,15 +27,16 @@
         </activity>
         <activity
             android:uiOptions="splitActionBarWhenNarrow"
-            android:name="com.app.gagi.iremember.UI.StoryCreateActivity"
+            android:name=".UI.StoryCreateActivity"
             android:label="@string/app_name" >
             <meta-data android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow" />
         </activity>
         <activity
-            android:name="com.app.gagi.iremember.UI.SoundRecordActivity"
+            android:name=".UI.SoundRecordActivity"
             >
         </activity>
+        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
     </application>
 
 </manifest>

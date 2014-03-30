@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -23,10 +24,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.app.gagi.iremember.Common.StoryCreateItem;
 import com.app.gagi.iremember.Common.StoryGPSInfo;
 import com.app.gagi.iremember.R;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +51,11 @@ import java.util.Locale;
  * create an instance of this fragment.
  *
  */
-public class StoryCreateFragment extends Fragment {
+public class StoryCreateFragment extends Fragment implements
+        GooglePlayServicesClient.ConnectionCallbacks,
+        GooglePlayServicesClient.OnConnectionFailedListener,
+        LocationListener
+        {
 
 
     private final static String LOG_TAG = StoryCreateFragment.class
@@ -55,10 +67,12 @@ public class StoryCreateFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static String mStoryDate;
 
-    // TODO: Rename and change types of parameters
+            // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
 
     Bitmap photoBitmap;
     ImageView mImageView;
@@ -66,15 +80,20 @@ public class StoryCreateFragment extends Fragment {
     EditText txtPhotoPath;
     EditText txtVideoPath;
     EditText txtAudioPath;
-    EditText txtStoryTitle;
+    static EditText txtStoryTitle;
+    EditText txtGpsPosition;
     static EditText txtStoryTime;
+    static TextView lblHeadStoryTitle;
     ImageButton btnAddStoryTime;
+    ImageButton btnAddGpsLocation;
     private OnFragmentInteractionListener mListener;
     private String mAudioPath;
     private String mPhotoPath;
     private String mStoryTitle;
     private String mStoryBody;
     private Uri mVideoFileUri;
+
+    private static String mHeadStoryTitle;
 
     /**
      * Use this factory method to create a new instance of
@@ -95,6 +114,7 @@ public class StoryCreateFragment extends Fragment {
     }
     public StoryCreateFragment() {
         // Required empty public constructor
+
     }
 
     @Override
@@ -108,18 +128,20 @@ public class StoryCreateFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_create_validate:
+                mStoryTitle = txtStoryTitle.getText().toString();
+                String videoUrl = mVideoFileUri != null ? mVideoFileUri.toString() : "";
                 Intent data = new Intent();
                 Bundle bundle = new Bundle();
-                mStoryTitle = txtStoryTitle.getText().toString();
                 bundle.putString(StoryCreateItem.TITLE_TAG,mStoryTitle);
                 bundle.putString(StoryCreateItem.AUDIO_TAG,mAudioPath);
                 bundle.putString(StoryCreateItem.PHOTO_TAG,imagePathFinal);
-                bundle.putString(StoryCreateItem.VIDEO_TAG,mVideoFileUri.toString());
+                bundle.putString(StoryCreateItem.VIDEO_TAG, videoUrl);
                 bundle.putString(StoryCreateItem.STORYTIME_TAG,txtStoryTime.getText().toString());
                 data.putExtra("EXTRA_TEST", bundle);
                 data.putExtra("EXTRA_OBJ",new StoryCreateItem(mStoryTitle,
                         mAudioPath, imagePathFinal,
-                        mVideoFileUri.toString(),txtStoryTime.getText().toString(), new StoryGPSInfo(45.0,4.5)));
+                        videoUrl,txtStoryTime.getText().toString(),
+                        StoryGPSInfo.buildFromLocation(mLocation)));
                 this.getActivity().setResult(getActivity().RESULT_OK,data);
                 this.getActivity().finish();
                 break;
@@ -131,6 +153,19 @@ public class StoryCreateFragment extends Fragment {
                 break;
             case R.id.action_add_video:
                 launchVideoCameraIntent();
+                break;
+            case R.id.action_show_add_gps:
+
+                if(null != mLocation) {
+                    acquirePosition();
+                    showStoredPosition(mLocation);
+                }
+                else
+                    Toast.makeText(getActivity().getApplicationContext(),"Location not acquired yet",Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.action_add_date:
+                DatePickerFragment fragment = new DatePickerFragment();
+                fragment.show(getFragmentManager(),"dateTimePicker");
                 break;
             default:
                 break;
@@ -146,12 +181,16 @@ public class StoryCreateFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
         setRetainInstance(true);
+        mLocationClient = new LocationClient(getActivity().getApplicationContext(),this,this);
+        mLocationClient.connect();
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        mHeadStoryTitle = getActivity().getResources().getString(R.string.label_story_title);
         mRootView = inflater.inflate(R.layout.story_create_fragment,container,false);
 
         txtPhotoPath = (EditText)mRootView.findViewById(R.id.txtViewPhotoPath);
@@ -159,7 +198,9 @@ public class StoryCreateFragment extends Fragment {
         txtVideoPath = (EditText)mRootView.findViewById(R.id.txtViewVideoPath);
         txtStoryTime = (EditText)mRootView.findViewById(R.id.editTexStoryTime);
         txtStoryTitle = (EditText)mRootView.findViewById(R.id.editTextStoryTitle);
-
+        lblHeadStoryTitle = (TextView)mRootView.findViewById(R.id.txtHeadStoryTitle);
+        txtGpsPosition = (EditText)mRootView.findViewById(R.id.txtGPSPosition);
+        btnAddGpsLocation = (ImageButton)mRootView.findViewById(R.id.imgBtnAddGPS);
 
 
         btnAddStoryTime = (ImageButton)mRootView.findViewById(R.id.imgBtnAddDate);
@@ -172,10 +213,31 @@ public class StoryCreateFragment extends Fragment {
             }
         });
 
+        btnAddGpsLocation.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                acquirePosition();
+            }
+        });
+
         return mRootView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
+            private void acquirePosition() {
+                if(null != mLocation)
+                {
+                    String msg = String.valueOf(mLocation.getLatitude()) + "," +
+                            String.valueOf(mLocation.getLongitude());
+                    txtGpsPosition.setText(msg);
+                    Toast.makeText(getActivity().getApplicationContext(), msg , Toast.LENGTH_LONG).show();
+                }
+                else
+                {
+                    Toast.makeText(getActivity().getApplicationContext(), "Location not acquired yet", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -207,6 +269,12 @@ public class StoryCreateFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        mLocationClient.disconnect();
+    }
 
     String imagePathFinal = "";
     @Override
@@ -365,8 +433,62 @@ public class StoryCreateFragment extends Fragment {
 
     }
 
+        Location mLocation;
+        LocationClient mLocationClient;
+        void showStoredPosition(Location location)
+        {
 
-    /**
+            String latitude,longitude;
+            latitude = String.valueOf(location.getLatitude());
+            longitude = String.valueOf(location.getLongitude());
+            String label = mStoryTitle;
+            String uriBegin = "geo:" + latitude + "," + longitude;
+            String query = latitude + "," + longitude + "(" + label + ")";
+            String encodedQuery = Uri.encode(query);
+            String uriString = uriBegin + "?q=" + encodedQuery + "&z=13";
+            //geo:latitude,longitude
+            //Show the map at the given longitude and latitude.
+            //       Example: "geo:47.6,-122.3"
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(uriString));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            if (getActivity().getApplicationContext() != null) {
+                getActivity().getApplicationContext().startActivity(intent);
+            }
+        }
+        /**
+         * interfaces for google maps
+         */
+        @Override
+        public void onConnected(Bundle bundle) {
+            Log.i(LOG_TAG,"Google service connected...");
+            Toast.makeText(getActivity().getApplicationContext(),"Google service connected..",Toast.LENGTH_SHORT).show();
+            mLocationClient.requestLocationUpdates(
+                    LocationRequest.create().setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY).setInterval(30000),
+                    this);
+        }
+
+        @Override
+        public void onDisconnected() {
+            Log.i(LOG_TAG,"Google service disconnected...");
+            Toast.makeText(getActivity().getApplicationContext(),"Google service disconnected...",Toast.LENGTH_SHORT).show();
+            mLocationClient.removeLocationUpdates(this);
+        }
+
+        @Override
+        public void onConnectionFailed(ConnectionResult connectionResult) {
+            Log.i(LOG_TAG,"GGoogle service connection FAILED!");
+            Toast.makeText(getActivity().getApplicationContext(),"Google service connection FAILED!",Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onLocationChanged(Location location) {
+
+            mLocation = location;
+        }
+
+
+            /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
@@ -380,6 +502,7 @@ public class StoryCreateFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
+
     }
 
     static void setStringDate(int year, int monthOfYear, int dayOfMonth){
@@ -394,7 +517,10 @@ public class StoryCreateFragment extends Fragment {
         if (dayOfMonth < 10)
             day = "0" + dayOfMonth;
 
-        txtStoryTime.setText(year + "-" + mon + "-" + day);
+        mStoryDate = year + "-" + mon + "-" + day;
+        txtStoryTime.setText(mStoryDate);
+
+        lblHeadStoryTitle.setText(mHeadStoryTitle + " [" + mStoryDate + "]");
 
     }
 

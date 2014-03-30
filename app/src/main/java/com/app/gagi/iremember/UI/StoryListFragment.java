@@ -138,18 +138,13 @@ public class StoryListFragment extends ListFragment{
                 && (StoryListActivity.REQUEST_CODE_CREATE_STORY == requestCode)
                 )
         {
-            Bundle bundle = data.getBundleExtra("EXTRA_TEST");
-            StoryCreateItem item =  data.getExtras().getParcelable("EXTRA_OBJ");
+            //Bundle bundle = data.getBundleExtra("EXTRA_TEST");
+            StoryCreateItem storyResult =  data.getExtras().getParcelable("EXTRA_OBJ");
             //Toast.makeText(getActivity().getApplicationContext(),"New Story Created: " + data.getStringExtra("EXTRA_TEST"),Toast.LENGTH_SHORT).show();
-            Toast.makeText(getActivity().getApplicationContext(),"New Story Created: " + bundle.getString(StoryCreateItem.TITLE_TAG),Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity().getApplicationContext(),"New Story Created: " +
+                    storyResult.getItemName(),Toast.LENGTH_SHORT).show();
 
-            mAdapter.addElement(new StoryCreateItem(bundle.getString(StoryCreateItem.TITLE_TAG),
-                    bundle.getString(StoryCreateItem.AUDIO_TAG),
-                    bundle.getString(StoryCreateItem.PHOTO_TAG),
-                    bundle.getString(StoryCreateItem.VIDEO_TAG),
-                    bundle.getString(StoryCreateItem.STORYTIME_TAG),
-                    null)
-            );
+            mAdapter.addElement(storyResult);
         }
     }
 

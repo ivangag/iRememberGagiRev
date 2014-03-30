@@ -1,5 +1,7 @@
 package com.app.gagi.iremember.Common;
 
+import android.location.Location;
+
 /**
  * Created by igaglioti on 27/03/14.
  */
@@ -27,5 +29,15 @@ public class StoryGPSInfo {
     {
         mLatitude = latitude;
         mLongitude = longitude;
+    }
+
+    public static StoryGPSInfo buildFromLocation(Location location) {
+        double lat = 0.0,lon = 0.0;
+        if(null != location)
+        {
+            lat = location.getLatitude();
+            lon = location.getLongitude();
+        }
+        return  new StoryGPSInfo(lat,lon);
     }
 }
