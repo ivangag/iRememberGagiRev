@@ -1,14 +1,21 @@
-package com.app.gagi.iremember.Common;
+package com.app.gagi.iremember.DAL;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.app.gagi.iremember.Common.StoryGPSInfo;
+
+import java.util.ArrayList;
 
 /**
  * Created by igaglioti on 10/03/14.
  */
-public class StoryCreateItem implements Parcelable {
+public class StoryDataEntity implements Parcelable {
 
     public static String TITLE_TAG = "title";
+    public static String BODY_TAG = "body";
     public static String PHOTO_TAG = "photo";
     public static String AUDIO_TAG = "audio";
     public static String VIDEO_TAG = "video";
@@ -16,7 +23,37 @@ public class StoryCreateItem implements Parcelable {
     public static String GPS_LONG_TAG = "gps_long";
     public static String STORYTIME_TAG = "story_time";
 
+    public  StoryDataEntity(){}
+
+    public String getBody() {
+        return mBody;
+    }
+
+    public void setBody(String mBody) {
+        this.mBody = mBody;
+    }
+
+    public double getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(double creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    private double creationTime;
+    private String mBody;
     private String mPhotoPath;
+
+    public String getPhotoName() {
+        return mPhotoName;
+    }
+
+    public void setPhotoName(String mPhotoName) {
+        this.mPhotoName = mPhotoName;
+    }
+
+    private String mPhotoName;
     private String mAudioPath;
     private String mVideoPath;
     private StoryGPSInfo mGPSInfo;
@@ -97,7 +134,7 @@ public class StoryCreateItem implements Parcelable {
         this.mItemName = itemName;
     }
 
-    public StoryCreateItem(String itemName,
+    public StoryDataEntity(String itemName,
                            String audioPath, String photoPath,
                            String videoPath, String storyDate, StoryGPSInfo gpsInfo)
     {
@@ -125,7 +162,7 @@ public class StoryCreateItem implements Parcelable {
         dest.writeDouble(mLatitude);
         dest.writeDouble(mLongitude);
     }
-    private StoryCreateItem(Parcel in) {
+    private StoryDataEntity(Parcel in) {
         mAudioPath = in.readString();
         mPhotoPath = in.readString();
         mVideoPath = in.readString();
@@ -135,16 +172,46 @@ public class StoryCreateItem implements Parcelable {
         mLongitude = in.readDouble();
     }
 
-    public static final Parcelable.Creator<StoryCreateItem> CREATOR
-            = new Parcelable.Creator<StoryCreateItem>() {
-        public StoryCreateItem createFromParcel(Parcel in) {
-            return new StoryCreateItem(in);
+    public static final Parcelable.Creator<StoryDataEntity> CREATOR
+            = new Parcelable.Creator<StoryDataEntity>() {
+        public StoryDataEntity createFromParcel(Parcel in) {
+            return new StoryDataEntity(in);
         }
 
-        public StoryCreateItem[] newArray(int size) {
-            return new StoryCreateItem[size];
+        public StoryDataEntity[] newArray(int size) {
+            return new StoryDataEntity[size];
         }
     };
 
 
+    public static ContentValues getCVFromStoryData(StoryDataEntity story)
+    {
+        ContentValues cv = new ContentValues();
+        cv.put(StoryDBHelper.TITLE,story.getItemName());
+        cv.put(StoryDBHelper.AUDIO_PATH,story.getAudioPath());
+        cv.put(StoryDBHelper.BODY,story.getBody());
+        cv.put(StoryDBHelper.CREATION_TIME,story.getCreationTime());
+        cv.put(StoryDBHelper.GPS_LAT,story.getLatitude());
+        cv.put(StoryDBHelper.GPS_LON,story.getLongitude());
+        cv.put(StoryDBHelper.PHOTO_NAME,story.getPhotoName());
+        cv.put(StoryDBHelper.PHOTO_PATH,story.getPhotoPath());
+        cv.put(StoryDBHelper.VIDEO_PATH,story.getVideoPath());
+
+        return cv;
+    }
+
+    public static StoryDataEntity getStoryFromValues(ContentValues values)
+    {
+        StoryDataEntity story = new StoryDataEntity();
+        story.setAudioPath(values.getAsString(StoryDBHelper.AUDIO_PATH));
+        story.setItemName(values.getAsString(StoryDBHelper.TITLE));
+        story.setBody(values.getAsString(StoryDBHelper.BODY));
+        story.setLatitude(values.getAsDouble(StoryDBHelper.GPS_LAT));
+        story.setLongitude(values.getAsDouble(StoryDBHelper.GPS_LON));
+        story.setCreationTime(values.getAsDouble(StoryDBHelper.CREATION_TIME));
+        story.setPhotoName(values.getAsString(StoryDBHelper.PHOTO_NAME));
+        story.setPhotoPath(values.getAsString(StoryDBHelper.PHOTO_PATH));
+        story.setVideoPath(values.getAsString(StoryDBHelper.VIDEO_PATH));
+        return story;
+    }
 }

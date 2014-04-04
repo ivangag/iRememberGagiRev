@@ -27,7 +27,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.app.gagi.iremember.Common.StoryCreateItem;
+import com.app.gagi.iremember.DAL.StoryDBMapper;
+import com.app.gagi.iremember.DAL.StoryDataEntity;
 import com.app.gagi.iremember.Common.StoryGPSInfo;
 import com.app.gagi.iremember.R;
 import com.google.android.gms.common.ConnectionResult;
@@ -132,18 +133,16 @@ public class StoryCreateFragment extends Fragment implements
                 String videoUrl = mVideoFileUri != null ? mVideoFileUri.toString() : "";
                 Intent data = new Intent();
                 Bundle bundle = new Bundle();
-                bundle.putString(StoryCreateItem.TITLE_TAG,mStoryTitle);
-                bundle.putString(StoryCreateItem.AUDIO_TAG,mAudioPath);
-                bundle.putString(StoryCreateItem.PHOTO_TAG,imagePathFinal);
-                bundle.putString(StoryCreateItem.VIDEO_TAG, videoUrl);
-                bundle.putString(StoryCreateItem.STORYTIME_TAG,txtStoryTime.getText().toString());
-                data.putExtra("EXTRA_TEST", bundle);
-                data.putExtra("EXTRA_OBJ",new StoryCreateItem(mStoryTitle,
+                StoryDataEntity storyToSave = new StoryDataEntity(mStoryTitle,
                         mAudioPath, imagePathFinal,
-                        videoUrl,txtStoryTime.getText().toString(),
-                        StoryGPSInfo.buildFromLocation(mLocation)));
+                        videoUrl, txtStoryTime.getText().toString(),
+                        StoryGPSInfo.buildFromLocation(mLocation));
+                data.putExtra("EXTRA_OBJ",
+                        storyToSave);
                 this.getActivity().setResult(getActivity().RESULT_OK,data);
                 this.getActivity().finish();
+                StoryDBMapper.getInstance(getActivity().getApplicationContext())
+                        .open().insertStoryData(storyToSave);
                 break;
             case R.id.action_add_audio:
                 launchSoundIntent();
@@ -237,7 +236,7 @@ public class StoryCreateFragment extends Fragment implements
                 }
             }
 
-            // TODO: Rename method, update argument and hook method into UI event
+    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -272,8 +271,8 @@ public class StoryCreateFragment extends Fragment implements
     @Override
     public void onDestroy()
     {
-        super.onDestroy();
         mLocationClient.disconnect();
+        super.onDestroy();
     }
 
     String imagePathFinal = "";
@@ -457,7 +456,8 @@ public class StoryCreateFragment extends Fragment implements
             }
         }
         /**
-         * interfaces for google maps
+         * callbacks from google maps service
+         * onConnected
          */
         @Override
         public void onConnected(Bundle bundle) {
@@ -467,20 +467,29 @@ public class StoryCreateFragment extends Fragment implements
                     LocationRequest.create().setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY).setInterval(30000),
                     this);
         }
-
+        /**
+         * callbacks from google maps service
+         * onDisconnected
+         */
         @Override
         public void onDisconnected() {
             Log.i(LOG_TAG,"Google service disconnected...");
             Toast.makeText(getActivity().getApplicationContext(),"Google service disconnected...",Toast.LENGTH_SHORT).show();
             mLocationClient.removeLocationUpdates(this);
         }
-
+        /**
+         * callbacks from google maps service
+         * onConnectionFailed
+         */
         @Override
         public void onConnectionFailed(ConnectionResult connectionResult) {
             Log.i(LOG_TAG,"GGoogle service connection FAILED!");
             Toast.makeText(getActivity().getApplicationContext(),"Google service connection FAILED!",Toast.LENGTH_SHORT).show();
         }
-
+        /**
+         * callbacks from google maps service
+         * onLocationChanged
+         */
         @Override
         public void onLocationChanged(Location location) {
 

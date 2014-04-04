@@ -14,8 +14,11 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.app.gagi.iremember.Common.StoryCreateItem;
+import com.app.gagi.iremember.DAL.StoryDBMapper;
+import com.app.gagi.iremember.DAL.StoryDataEntity;
 import com.app.gagi.iremember.R;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link android.support.v4.app.Fragment} subclass.
@@ -67,6 +70,10 @@ public class StoryListFragment extends ListFragment{
         mAdapter = new StoryListOverviewAdapter();
 
         setListAdapter(mAdapter);
+
+        ArrayList<StoryDataEntity> loadStories = StoryDBMapper.getInstance(getActivity().getApplicationContext()).open().queryAllStories();
+        mAdapter.addElementRange(loadStories);
+
         setRetainInstance(true);
 
     }
@@ -138,12 +145,8 @@ public class StoryListFragment extends ListFragment{
                 && (StoryListActivity.REQUEST_CODE_CREATE_STORY == requestCode)
                 )
         {
-            //Bundle bundle = data.getBundleExtra("EXTRA_TEST");
-            StoryCreateItem storyResult =  data.getExtras().getParcelable("EXTRA_OBJ");
-            //Toast.makeText(getActivity().getApplicationContext(),"New Story Created: " + data.getStringExtra("EXTRA_TEST"),Toast.LENGTH_SHORT).show();
-            Toast.makeText(getActivity().getApplicationContext(),"New Story Created: " +
-                    storyResult.getItemName(),Toast.LENGTH_SHORT).show();
-
+            StoryDataEntity storyResult =  data.getExtras().getParcelable("EXTRA_OBJ");
+            Toast.makeText(getActivity().getApplicationContext(),"New Story Created: " + storyResult.getItemName(),Toast.LENGTH_SHORT).show();
             mAdapter.addElement(storyResult);
         }
     }

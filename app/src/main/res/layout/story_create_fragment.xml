@@ -29,6 +29,7 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.2"
                 android:id="@+id/editTextStoryTitle"
                 android:editable="true"
                 android:inputType="text"
@@ -39,6 +40,7 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.8"
                 android:id="@+id/editTextStoryBody"
                 android:hint="@string/hint_story_body"
                 android:editable="true"

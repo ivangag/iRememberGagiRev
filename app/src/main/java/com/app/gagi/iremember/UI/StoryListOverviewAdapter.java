@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.app.gagi.iremember.Common.StoryCreateItem;
+import com.app.gagi.iremember.DAL.StoryDataEntity;
 import com.app.gagi.iremember.Common.Utils;
 import com.app.gagi.iremember.R;
 
@@ -20,16 +20,24 @@ import java.util.List;
  * Created by igaglioti on 10/03/14.
  */
 public class StoryListOverviewAdapter  extends BaseAdapter{
-    List<StoryCreateItem> mStoryLisOverviewItems;
-    List<StoryCreateItem> mOriginalStoryLisOverviewItems;
+    List<StoryDataEntity> mStoryLisOverviewItems;
+    List<StoryDataEntity> mOriginalStoryLisOverviewItems;
 
     public StoryListOverviewAdapter()
     {
-        mStoryLisOverviewItems = new ArrayList<StoryCreateItem>();
-        mOriginalStoryLisOverviewItems = new ArrayList<StoryCreateItem>();
+        mStoryLisOverviewItems = new ArrayList<StoryDataEntity>();
+        mOriginalStoryLisOverviewItems = new ArrayList<StoryDataEntity>();
     }
 
-    public void addElement(StoryCreateItem item)
+    public void addElementRange(ArrayList<StoryDataEntity> items)
+    {
+        for(StoryDataEntity item:items) {
+            this.mOriginalStoryLisOverviewItems.add(item);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void addElement(StoryDataEntity item)
     {
         this.mOriginalStoryLisOverviewItems.add(item);
         notifyDataSetChanged();
@@ -47,13 +55,13 @@ public class StoryListOverviewAdapter  extends BaseAdapter{
 
     @Override
     public long getItemId(int position) {
-        return mOriginalStoryLisOverviewItems.get(position).hashCode();
+        return ((Object)(mOriginalStoryLisOverviewItems.get(position))).hashCode();
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        StoryCreateItem item = (StoryCreateItem)this.getItem(position);
+        StoryDataEntity item = (StoryDataEntity)this.getItem(position);
         LayoutInflater inflater = (LayoutInflater)parent.getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         RelativeLayout itemLayout = (RelativeLayout)inflater.inflate(R.layout.story_list_fragment_item,null);
